@@ -8,10 +8,10 @@ import WebSocket from 'ws';
 /**
  * send a json message serialized to string
  */
-WebSocket.prototype.sendJson = function(data, options, callback) {
-  data = JSON.stringify(data);
-  return this.send(data, options, callback);
-};
+function sendJson(data, options, callback) {
+  const jsonData = JSON.stringify(data);
+  return this.send(jsonData, options, callback);
+}
 
 /**
  * Send a message in the following format:
@@ -21,10 +21,9 @@ WebSocket.prototype.sendJson = function(data, options, callback) {
  *      data: data
  *    }
  */
-WebSocket.prototype.sendCommand = function(command, data, options, callback) {
-  return this.sendJson({command, data}, options, callback)
+function sendCommand(command, data, options, callback) {
+  return this.sendJson({ command, data }, options, callback);
 }
-
 
 /**
  * Register a function to be called when a given command is received.
@@ -35,12 +34,18 @@ WebSocket.prototype.sendCommand = function(command, data, options, callback) {
  *      data: {}
  *    }
  */
-WebSocket.prototype.onCommand = function(command, listener) {
-  this.registeredCommands = this.registeredCommands || {}
+function onCommand(command, listener) {
+  this._registerCommandHandler();
+
+  this.registeredCommands[command] = listener;
+}
+
+function _registerCommandHandler() {
+  this.registeredCommands = this.registeredCommands || {};
 
   this._onCommand = this._onCommand || this.on('message', msg => {
-    msg = JSON.parse(msg);
-    const { command, data } = msg;
+    const jsonMsg = JSON.parse(msg);
+    const { command, data } = jsonMsg;
     assert(command && data, 'invalid message received', data);
 
     const callback = this.registeredCommands[command];
@@ -49,6 +54,9 @@ WebSocket.prototype.onCommand = function(command, listener) {
 
     callback(data);
   });
+}
 
-  this.registeredCommands[command] = listener;
-};
+WebSocket.prototype.sendJson = sendJson;
+WebSocket.prototype.sendCommand = sendCommand;
+WebSocket.prototype.onCommand = onCommand;
+WebSocket.prototype._registerCommandHandler = _registerCommandHandler;
