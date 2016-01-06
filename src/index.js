@@ -2,9 +2,10 @@
 import assert from 'assert';
 import WebSocket from 'ws';
 
+import * as tunnelClient from './tunnel-client';
 import {} from './ws-monkey-patch';
 
-const serverUrl = process.env.BFLY_SERVER_URL || 'ws://127.0.0.1:8080/ws';
+const serverUrl = process.env.BFLY_SERVER_URL || 'ws://localhost:8080/ws';
 const hospitalId = process.env.BFLY_HOSPITAL_ID;
 const reconnectInterval = process.env.BFLY_RECONNECT_INTERVAL || 4;
 
@@ -25,7 +26,8 @@ function connect() {
   ws.on('error', onClose);
 
   ws.onCommand('OPEN_TUNNEL', data => {
-    console.log('received open', data);
+    const { tunnelPort, tunnelServerUrl, pacsUrl } = data;
+    tunnelClient.open(tunnelPort, tunnelServerUrl, pacsUrl);
   });
 }
 
