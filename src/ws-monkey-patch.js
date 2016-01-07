@@ -56,7 +56,36 @@ function _registerCommandHandler() {
   });
 }
 
+/**
+ * Constantly monitors if the connection is still open using ping/pong every
+ * `interval` milliseconds. `timeoutCb` is called when the ping/pong doesn't
+ * answer in time
+ */
+function monitor(interval, timeoutCb) {
+  let currentTimeout;
+
+  const onTimeoutExpired = () => {
+    clearTimeout(currentTimeout);
+    timeoutCb();
+  };
+
+  const ping = () => {
+    setTimeout(() => {
+      this.ping(undefined, undefined, true);
+      currentTimeout = setTimeout(onTimeoutExpired, interval);
+    }, interval);
+  };
+
+  this.on('pong', () => {
+    clearTimeout(currentTimeout);
+    ping();
+  });
+
+  ping();
+}
+
 WebSocket.prototype.sendJson = sendJson;
 WebSocket.prototype.sendCommand = sendCommand;
 WebSocket.prototype.onCommand = onCommand;
 WebSocket.prototype._registerCommandHandler = _registerCommandHandler;
+WebSocket.prototype.monitor = monitor;
