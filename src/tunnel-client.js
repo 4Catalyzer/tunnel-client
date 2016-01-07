@@ -3,9 +3,9 @@ import wts from 'node-reverse-wstunnel';
 
 /**
  * open a reverse tunnel on `serverUrl` from port `tunnelPort` pointing to
- * `remoteUrl`
+ * `netloc`
  */
-export function open(tunnelPort, serverUrl, remoteUrl) {
+export function open(tunnelPort, serverUrl, netloc) {
   const reverseClient = new wts.client_reverse();
-  reverseClient.start(tunnelPort, serverUrl, remoteUrl);
+  reverseClient.start(tunnelPort, serverUrl, netloc);
 }
