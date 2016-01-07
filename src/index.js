@@ -1,7 +1,7 @@
-/* eslint no-use-before-define: 0 */
 import assert from 'assert';
 import WebSocket from 'ws';
 
+import log from './log';
 import * as tunnelClient from './tunnel-client';
 import {} from './ws-monkey-patch';
 
@@ -11,31 +11,24 @@ const reconnectInterval = process.env.BFLY_RECONNECT_INTERVAL || 4;
 
 assert(hospitalId, 'Must provide a valid hospital ID');
 
-console.log(`Connecting to ${serverUrl}`);
+log(`Connecting to ${serverUrl}`);
 
 function connect() {
   const ws = new WebSocket(serverUrl);
 
   ws.on('open', () => {
-    console.log('Succesful connection established');
+    log('Succesful connection established');
 
     ws.sendCommand('REGISTER_HOSPITAL', hospitalId);
   });
 
-  ws.on('close', onClose);
-  ws.on('error', onClose);
+  ws.on('close', (code, message) => log('Connection closed', code, message));
+  ws.on('error', error => log('An error was thrown, connection closed', error));
 
   ws.onCommand('OPEN_TUNNEL', data => {
     const { tunnelPort, tunnelServerUrl, pacsUrl } = data;
     tunnelClient.open(tunnelPort, tunnelServerUrl, pacsUrl);
   });
-}
-
-function onClose() {
-  console.log('Connection with the server interrupted.' +
-    `Trying to reconnect in ${reconnectInterval} seconds`);
-
-  setTimeout(connect, 1000 * reconnectInterval);
 }
 
 connect();
