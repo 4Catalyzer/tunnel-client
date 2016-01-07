@@ -1,9 +1,11 @@
 import assert from 'assert';
 import WebSocket from 'ws';
+import wsmp from 'websocket-monkeypatch';
 
 import { log, error } from './log';
 import * as tunnelClient from './tunnel-client';
-import {} from './ws-monkey-patch';
+
+wsmp(WebSocket);
 
 const serverUrl = process.env.TC_SERVER_URL || 'ws://localhost:8080/ws';
 const networkId = process.env.TC_NETWORK_ID;
@@ -14,13 +16,14 @@ assert(networkId, 'Must provide a valid network ID');
 log(`Connecting to ${serverUrl}`);
 
 let ws;
+let retries = 0;
 
 function connect() {
   ws = new WebSocket(serverUrl);
 
   ws.on('open', () => {
     log('Succesful connection established');
-
+    retries = 0;
     ws.sendCommand('REGISTER_NETWORK', networkId);
   });
 
@@ -33,9 +36,11 @@ function connect() {
   });
 
   ws.monitor(reconnectInterval * 1000, () => {
-    error('Disconnected from server. Trying to reconnect.');
+    const nextRetrySeconds = (2**Math.min(5, retries++));
+    error('Disconnected from server.' +
+      `Trying to reconnect in ${nextRetrySeconds} seconds.`, retries);
     ws.terminate();
-    connect();
+    setTimeout(connect, nextRetrySeconds * 1000);
   });
 }
 
