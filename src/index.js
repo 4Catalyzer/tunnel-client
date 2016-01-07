@@ -9,7 +9,7 @@ wsmp(WebSocket);
 
 const serverUrl = process.env.TC_SERVER_URL || 'ws://localhost:8080/ws';
 const networkId = process.env.TC_NETWORK_ID;
-const reconnectInterval = process.env.TC_PING_INTERVAL || 10;
+const pingInterval = process.env.TC_PING_INTERVAL || 10;
 
 assert(networkId, 'Must provide a valid network ID');
 
@@ -32,10 +32,11 @@ function connect() {
 
   ws.onCommand('OPEN_TUNNEL', data => {
     const { tunnelPort, tunnelServerUrl, netloc } = data;
+    log(`opening tunnel to ${netloc}`);
     tunnelClient.open(tunnelPort, tunnelServerUrl, netloc);
   });
 
-  ws.monitor(reconnectInterval * 1000, () => {
+  ws.monitor(pingInterval * 1000, () => {
     const nextRetrySeconds = (2**Math.min(5, retries++));
     error('Disconnected from server.' +
       `Trying to reconnect in ${nextRetrySeconds} seconds.`, retries);
