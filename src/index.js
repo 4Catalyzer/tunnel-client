@@ -5,9 +5,9 @@ import log from './log';
 import * as tunnelClient from './tunnel-client';
 import {} from './ws-monkey-patch';
 
-const serverUrl = process.env.BFLY_SERVER_URL || 'ws://localhost:8080/ws';
-const hospitalId = process.env.BFLY_HOSPITAL_ID;
-const reconnectInterval = process.env.BFLY_RECONNECT_INTERVAL || 4;
+const serverUrl = process.env.TC_SERVER_URL || 'ws://localhost:8080/ws';
+const hospitalId = process.env.TC_NETWORK_ID;
+const reconnectInterval = process.env.TC_PING_INTERVAL || 4;
 
 assert(hospitalId, 'Must provide a valid hospital ID');
 
@@ -26,8 +26,8 @@ function connect() {
   ws.on('error', error => log('An error was thrown, connection closed', error));
 
   ws.onCommand('OPEN_TUNNEL', data => {
-    const { tunnelPort, tunnelServerUrl, pacsUrl } = data;
-    tunnelClient.open(tunnelPort, tunnelServerUrl, pacsUrl);
+    const { tunnelPort, tunnelServerUrl, netloc } = data;
+    tunnelClient.open(tunnelPort, tunnelServerUrl, netloc);
   });
 }
 
