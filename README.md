@@ -10,5 +10,6 @@ docker run \
   -e "TC_SERVER_URL=ws://TUNNEL_SERVER_LOCATION/ws" \
   -e "TC_NETWORK_ID=MY_PRIVATE_NETWORK_0001" \
   -e "TC_PING_INTERVAL=5" \
+  -e "TC_ACCESS_TOKEN=Bearer XXXXXXXXXXXXXXXXXXXXXXXX" \
   tunnel-client
 ```

@@ -10,6 +10,7 @@ wsmp(WebSocket);
 const serverUrl = process.env.TC_SERVER_URL || 'ws://localhost:8080/ws';
 const networkId = process.env.TC_NETWORK_ID;
 const pingInterval = process.env.TC_PING_INTERVAL || 10;
+const authorization = process.env.TC_ACCESS_TOKEN || '';
 
 assert(networkId, 'Must provide a valid network ID');
 
@@ -19,7 +20,8 @@ let ws;
 let retries = 0;
 
 function connect() {
-  ws = new WebSocket(serverUrl);
+  const headers = { Authorization: authorization };
+  ws = new WebSocket(serverUrl, { headers });
 
   ws.on('open', () => {
     log('Succesful connection established');
@@ -33,7 +35,7 @@ function connect() {
   ws.onCommand('OPEN_TUNNEL', data => {
     const { tunnelPort, tunnelServerUrl, netloc } = data;
     log(`opening tunnel to ${netloc}`);
-    tunnelClient.open(tunnelPort, tunnelServerUrl, netloc);
+    tunnelClient.open(tunnelPort, tunnelServerUrl, netloc, headers);
   });
 
   ws.monitor(pingInterval * 1000, () => {
