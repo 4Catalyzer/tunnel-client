@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "babel": "^5.8.21",
-    "reverse-wstunnel": "^1.2.0",
+    "reverse-wstunnel": "^1.2.2",
     "websocket-monkeypatch": "^0.1.2",
     "ws": "^1.0.1"
   },
