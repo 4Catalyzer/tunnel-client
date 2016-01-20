@@ -14,5 +14,6 @@
     "babel-eslint": "^5.0.0-beta6",
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^3.0.1"
-  }
+  },
+  "license": "MIT"
 }
