@@ -3,7 +3,7 @@ import WebSocket from 'ws';
 import wsmp from 'websocket-monkeypatch';
 
 import { log, error } from './log';
-import * as tunnelClient from './tunnel-client';
+import TunnelClient from './tunnel-client';
 
 wsmp(WebSocket);
 
@@ -31,12 +31,7 @@ function connect() {
 
   ws.on('close', (code, message) => log('Connection closed.', code, message));
   ws.on('error', err => log('An error was thrown, connection closed.', err));
-
-  ws.onCommand('OPEN_TUNNEL', data => {
-    const { tunnelPort, tunnelServerUrl, netloc } = data;
-    log(`opening tunnel to ${netloc}`);
-    tunnelClient.open(tunnelPort, tunnelServerUrl, netloc, headers);
-  });
+  new TunnelClient(ws).start();
 
   ws.monitor(pingInterval * 1000, () => {
     const nextRetrySeconds = (2**Math.min(5, retries++));
