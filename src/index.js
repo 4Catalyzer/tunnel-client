@@ -24,7 +24,7 @@ function connect() {
   ws = new WebSocket(serverUrl, { headers });
 
   ws.on('open', () => {
-    if (this._wsConn.readyState === this._wsConn.OPEN) {
+    if (ws.readyState === ws.OPEN) {
       log('Succesful connection established');
       retries = 0;
       ws.sendCommand('REGISTER_NETWORK', networkId);
