@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "babel": "^5.8.21",
-    "websocket-monkeypatch": "^0.1.2",
+    "websocket-monkeypatch": "^0.2.1",
     "ws": "^1.0.1"
   },
   "devDependencies": {
