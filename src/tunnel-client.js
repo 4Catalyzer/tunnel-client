@@ -58,7 +58,9 @@ export default class TunnelClient {
     info('ws message received');
     const { chunk, identifier } = decodeIdentifier(data);
     this._openConnection(identifier, chunk, (tcpConn, decodedChunk) => {
-      tcpConn.write(decodedChunk);
+      // an empty chunk signifies a TCP connection end
+      if (!chunk.length) tcpConn.end();
+      else tcpConn.write(decodedChunk);
     });
   }
 
